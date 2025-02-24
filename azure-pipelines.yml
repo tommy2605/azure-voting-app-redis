@@ -4,16 +4,52 @@
 # https://aka.ms/yaml
 
 trigger:
-branches:
-include:
-- main
+  branches:
+    include:
+      - main
+
 pool:
-vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-latest'
+
 steps:
 - task: Docker@2
-inputs:
-command: 'buildAndPush'
-repository: 'tmwacr.azurecr.io/azure-vote'
-dockerfile: 'Dockerfile'
-containerRegistry: 'tmwacr'
-tags: 'v$(Build.BuildId)'
+  inputs:
+    command: 'buildAndPush'
+    repository: 'tmwacr.azurecr.io/azure-vote'
+    dockerfile: 'Dockerfile'
+    containerRegistry: 'tmwacr' # Ensure this matches your ACR service connection name
+    tags: 'v$(Build.BuildId)'
+
+# Optional: Add error handling and more detailed logging
+# - task: Bash@3
+#   inputs:
+#     targetType: 'inline'
+#     script: |
+#       if [[ $? -ne 0 ]]; then
+#         echo "Docker build or push failed!"
+#         exit 1
+#       fi
+
+# Optional: Add unit tests
+# - task: Bash@3
+#   inputs:
+#     targetType: 'inline'
+#     script: |
+#       # Run your unit tests here
+#       echo "Running unit tests..."
+#       # Example: python -m unittest discover
+#
+# Optional: add docker linting.
+# - task: DockerLint@0
+#   inputs:
+#     dockerFile: 'Dockerfile'
+
+# Optional: add Docker cache.
+# - task: Docker@2
+#   inputs:
+#     containerRegistry: 'tmwacr'
+#     repository: 'tmwacr.azurecr.io/azure-vote'
+#     command: 'buildAndPush'
+#     dockerfile: 'Dockerfile'
+#     tags: 'v$(Build.BuildId)'
+#     arguments: '--cache-from $(tmwacr.azurecr.io/azure-vote:latest)' #if using latest tag.
